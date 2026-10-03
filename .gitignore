@@ -1,7 +1,7 @@
 # ─── Secrets / OAuth ─────────────────────────────────────────────
 g_credentials.md
 gcloud_app_credentials.json
-kkhata_web_token.json
+stash_web_token.json
 prototypes/
 .env
 .env.local

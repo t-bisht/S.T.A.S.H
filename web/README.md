@@ -1,4 +1,4 @@
-# web — KharchaKhata frontend
+# web — Stash frontend
 
 React 18 + Vite + TypeScript + Tailwind. Path alias `@/` → `src/`.
 

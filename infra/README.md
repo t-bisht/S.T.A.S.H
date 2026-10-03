@@ -1,6 +1,6 @@
 # infra — local docker-compose stack
 
-Services on a shared bridge network `kk-net`:
+Services on a shared bridge network `stash-net`:
 
 | service      | image / build         | host port |
 |--------------|-----------------------|-----------|
@@ -21,5 +21,5 @@ docker compose -f infra/docker-compose.yml up --build
 ## Postgres init
 
 Any `.sql` file under `infra/postgres/init/` runs once, in filename order,
-the first time the `kk-pg-data` volume is created. Wipe the volume
-(`docker volume rm kharchakhata_kk-pg-data`) to re-run.
+the first time the `stash-pg-data` volume is created. Wipe the volume
+(`docker volume rm stash_stash-pg-data`) to re-run.

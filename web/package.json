@@ -1,8 +1,8 @@
 {
-  "name": "kharchakhata-web",
+  "name": "stash-web",
   "version": "0.1.0",
   "private": true,
-  "description": "KharchaKhata — personal expense tracker web UI",
+  "description": "Stash — personal expense tracker web UI",
   "type": "module",
   "scripts": {
     "dev": "vite",

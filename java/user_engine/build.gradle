@@ -1,0 +1,17 @@
+// user_engine — user profile + login management service.
+// Runnable Spring Boot application. Port 8083.
+
+plugins {
+    id 'stash.spring-conventions'
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation libs.spring.boot.starter.web
+    implementation libs.spring.boot.starter.actuator
+    implementation libs.spring.boot.starter.validation
+}
+
+bootJar {
+    archiveBaseName = 'user-engine'
+}

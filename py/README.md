@@ -1,4 +1,4 @@
-# py — KharchaKhata python workspace
+# py — Stash python workspace
 
 uv-managed workspace. Each member is its own container-shippable service.
 

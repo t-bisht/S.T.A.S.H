@@ -1,4 +1,4 @@
-# KharchaKhata — local dev compose.
+# Stash — local dev compose.
 #
 # Run from repo root:  docker compose -f infra/docker-compose.yml up --build
 #
@@ -8,76 +8,76 @@
 # Prereq for login_engine: build the fat JAR first —
 #   (cd java && ./gradlew :login_engine:bootJar)
 
-name: kharchakhata
+name: stash
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: kk-postgres
+    container_name: stash-postgres
     environment:
-      POSTGRES_DB:       ${POSTGRES_DB:-kharchakhata}
-      POSTGRES_USER:     ${POSTGRES_USER:-kharchakhata}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kharchakhata}
+      POSTGRES_DB:       ${POSTGRES_DB:-stash}
+      POSTGRES_USER:     ${POSTGRES_USER:-stash}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stash}
     ports:
       - "5432:5432"
     volumes:
-      - kk-pg-data:/var/lib/postgresql/data
+      - stash-pg-data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test:     ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kharchakhata}"]
+      test:     ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stash}"]
       interval: 10s
       timeout:  5s
       retries:  5
     networks:
-      - kk-net
+      - stash-net
 
   ingestion:
     build:
       context: ..
       dockerfile: py/ingestion/Dockerfile
-    container_name: kk-ingestion
+    container_name: stash-ingestion
     environment:
       DB_HOST:     postgres
       DB_PORT:     5432
-      DB_NAME:     ${POSTGRES_DB:-kharchakhata}
-      DB_USER:     ${POSTGRES_USER:-kharchakhata}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-kharchakhata}
+      DB_NAME:     ${POSTGRES_DB:-stash}
+      DB_USER:     ${POSTGRES_USER:-stash}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-stash}
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
     networks:
-      - kk-net
+      - stash-net
 
   stager:
     build:
       context: ..
       dockerfile: py/stager/Dockerfile
-    container_name: kk-stager
+    container_name: stash-stager
     environment:
       DB_HOST:     postgres
       DB_PORT:     5432
-      DB_NAME:     ${POSTGRES_DB:-kharchakhata}
-      DB_USER:     ${POSTGRES_USER:-kharchakhata}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-kharchakhata}
+      DB_NAME:     ${POSTGRES_DB:-stash}
+      DB_USER:     ${POSTGRES_USER:-stash}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-stash}
     ports:
       - "8081:8081"
     depends_on:
       postgres:
         condition: service_healthy
     networks:
-      - kk-net
+      - stash-net
 
   login_engine:
     build:
       context: ../java/login_engine
       dockerfile: Dockerfile
-    container_name: kk-login-engine
+    container_name: stash-login-engine
     environment:
-      DB_URL:      jdbc:postgresql://postgres:5432/${POSTGRES_DB:-kharchakhata}
-      DB_USER:     ${POSTGRES_USER:-kharchakhata}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-kharchakhata}
+      DB_URL:      jdbc:postgresql://postgres:5432/${POSTGRES_DB:-stash}
+      DB_USER:     ${POSTGRES_USER:-stash}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-stash}
       GOOGLE_CLIENT_ID:         ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET:     ${GOOGLE_CLIENT_SECRET:-}
       APP_OAUTH_REDIRECT_URI:   ${APP_OAUTH_REDIRECT_URI:-http://localhost:3000/api/auth/google/callback}
@@ -95,13 +95,13 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - kk-net
+      - stash-net
 
   web:
     build:
       context: ../web
       dockerfile: Dockerfile
-    container_name: kk-web
+    container_name: stash-web
     environment:
       API_BASE_URL:     /api
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
@@ -112,11 +112,11 @@ services:
       - ingestion
       - stager
     networks:
-      - kk-net
+      - stash-net
 
 networks:
-  kk-net:
+  stash-net:
     driver: bridge
 
 volumes:
-  kk-pg-data:
+  stash-pg-data:

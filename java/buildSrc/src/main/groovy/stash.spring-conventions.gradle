@@ -1,10 +1,10 @@
-// khata.spring-conventions — for subprojects that use Spring Boot.
+// stash.spring-conventions — for subprojects that use Spring Boot.
 // Applies Spring Boot BOM + Testcontainers BOM + Lombok wiring.
 // The spring-boot plugin (bootJar) is registered here but NOT applied — apply it
 // explicitly in runnable service subprojects only.
 
 plugins {
-    id 'khata.java-conventions'
+    id 'stash.java-conventions'
     id 'org.springframework.boot' apply false
     id 'io.spring.dependency-management'
 }

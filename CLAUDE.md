@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**KharchaKhata** (also spelled "KarchaKhata" in logs) — personal expense tracker. Scans bills/receipts from Gmail (and later other sources) to extract and track expenses.
+**Stash** — personal expense tracker. Scans bills/receipts from Gmail (and later other sources) to extract and track expenses.
 
 Planned stack: **Java** backend + **React** frontend web app. No source code exists yet — repository currently holds only setup notes and Google OAuth credentials for Gmail API access.
 

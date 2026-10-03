@@ -3,7 +3,7 @@
 // Versions live in gradle/libs.versions.toml.
 
 allprojects {
-    group   = 'org.tb.khata'
+    group   = 'org.tb.stash'
     version = '0.1.0-SNAPSHOT'
 }
 

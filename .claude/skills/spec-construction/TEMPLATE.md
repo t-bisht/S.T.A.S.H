@@ -153,7 +153,7 @@ I --> UE: 401 {code:"GMAIL_AUTH_EXPIRED"}
 | Compose services     | `ingestion` (rebuilt), `user_engine` (rebuilt), `postgres` (init SQL added)                |
 | Build order          | `cd java && ./gradlew :user_engine:bootJar` → `docker compose -f infra/docker-compose.yml up --build` |
 | New env vars         | `GMAIL_INTERNAL_TOKEN` (both `ingestion` and `user_engine`)                                |
-| Postgres data reset  | Required — init drop-dir only reruns on empty volume. `docker volume rm kharchakhata_kk-pg-data`. |
+| Postgres data reset  | Required — init drop-dir only reruns on empty volume. `docker volume rm stash_stash-pg-data`. |
 | Rollback             | `docker compose down && git revert <sha> && docker compose up --build`                     |
 | Feature flag         | `APP_GMAIL_SCAN_ENABLED` on `user_engine` (default false)                                  |
 

@@ -1,6 +1,6 @@
 :toc:
 :sectnums:
-== K-Khata App Hi - Level Design
+== Stash App Hi - Level Design
 
 === Core Components / Engines
 
@@ -14,9 +14,9 @@ Boundary(hiem,'Hiemdall'){
     System(hi,'Hiemdall','Authorization and Authentication engine')
 }
 
-Boundary(khata,'Kharca-Khata'){
+Boundary(stash,'Stash'){
 
-    System(ui,'User Interface','react based user interface for KKhata')
+    System(ui,'User Interface','react based user interface for Stash')
     System(users,'User Engine', 'user focused microservices')
     System(dash,'Dashboard Engine','dashboard and reporting focused microservice')
 
@@ -45,8 +45,8 @@ Boundary(hiem,'Hiemdall'){
     System(hi,'Hiemdall','Authorization and Authentication engine')
 }
 
-Boundary(khata,'Kharca-Khata'){
-    System(ui,'User Interface','react based user interface for KKhata')
+Boundary(stash,'Stash'){
+    System(ui,'User Interface','react based user interface for Stash')
     System(users,'User Engine', 'user focused microservices')
 
     System(dash,'Dashboard Engine','dashboard and reporting focused microservice')
@@ -86,7 +86,7 @@ Rel_D(ui,dash,'5.call_for_showing_dashboard_content')
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
 
-Boundary(khata,'Kharca-Khata'){
+Boundary(stash,'Stash'){
 
     System_Boundary(ds,'Data Science Platform'){
         Component(sca,'Gmail-Scanner','Python based engine that scans & downloads User gmail account for configured emails')
@@ -95,7 +95,7 @@ Boundary(khata,'Kharca-Khata'){
 
     }
 
-    SystemDb(kdb,'K-Khata Database','Postgrese database')
+    SystemDb(kdb,'Stash Database','Postgrese database')
 
     Rel_D(sca,kdb,'get: access token')
     Rel(sca, vol,'push: attachments downloaded')
@@ -119,5 +119,7 @@ Rel_U(sca, gcp, get:mail&attachment)
 
 * Sources
 ** Swiggy (version 1 )
+*** Instamart
+*** Restaurant
 ** Blinkit (version 2)
 

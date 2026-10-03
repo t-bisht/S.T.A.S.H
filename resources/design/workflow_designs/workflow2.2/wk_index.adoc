@@ -1,0 +1,53 @@
+= Design Document : Workflow 2.2
+
+== Overview
+
+=== Connection to GMAIL , scanning instamart mails , parse and store in DB
+
+[plantuml]
+----
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+
+Boundary(stash,'Stash'){
+
+    System_Boundary(ds,'Data Science Platform'){
+        Component(sca,'Gmail-Scanner','Python based engine that scans & downloads User gmail account for configured emails')
+        Container(vol,'Storage Volume','Volume at compose level that can be shared by other containers')
+        Component(par,'Content-Parser','Responsible for parsing email contents and storing in database')
+
+    }
+
+    SystemDb(kdb,'Stash Database','Postgrese database')
+
+    Rel_D(sca,kdb,'get: access token')
+    Rel(sca, vol,'push: attachments downloaded')
+    Rel(sca,kdb,'push:scan_details')
+}
+
+System_Ext(or,'Open router', 'hosted LLM service')
+
+Rel_D(sca,par,'trigger_parsing_request')
+Rel_D(par,or, 'parse_attachments')
+Rel(par,kdb,'persist_ledger')
+Rel(par,vol,'read_attachments')
+
+System_Ext(gcp,'Google','gmail access')
+
+Rel_U(sca, gcp, get:mail&attachment)
+
+----
+
+* Intent
+** Scan GMAIL
+
+== Repository Structure
+
+* Scanner code section : /py/scanner
+* Parser code section : /py/parser
+
+
+=== Build
+
+*

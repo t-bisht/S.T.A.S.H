@@ -1,4 +1,4 @@
-// khata.java-conventions — applied to every Java subproject.
+// stash.java-conventions — applied to every Java subproject.
 // Java 21 toolchain, Spotless (Google Java Format AOSP), JaCoCo, JUnit 5.
 
 plugins {
