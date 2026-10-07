@@ -1,6 +1,10 @@
 spring:
   application:
     name: user-engine
+  datasource:
+    url:      ${STASH_DB_URL:jdbc:postgresql://localhost:7432/stash}
+    username: ${STASH_DB_USER:stash}
+    password: ${STASH_DB_PASSWORD:pwd}
 
 server:
   port: 8083
@@ -13,3 +17,22 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+hiemdall:
+  base-url:       ${HIEMDALL_BASE_URL:http://localhost:9082}
+  app-id:         ${HIEMDALL_APP_ID:stash}
+  internal-token: ${INTERNAL_SVC_TOKEN:}
+  exchange-path:  /internal/auth/exchange
+
+session:
+  cookie-name: STASH_SESSION
+  ttl:         P10D
+  same-site:   Lax
+  secure:      true
+  http-only:   true
+
+tokens:
+  enc-key: ${STASH_TOKEN_ENC_KEY:}
+
+cors:
+  allowed-origins: ${VITE_USER_ENGINE_BASE_URL:http://localhost:5173}

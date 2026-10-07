@@ -1,0 +1,36 @@
+# ── self_hosted/docker-compose.yml ───────────────────────────────────────────
+# Root compose file for the Stash self-hosted stack on local network.
+# Shared infrastructure (networks, volumes) is declared here.
+# Each concern lives in its own file under compose/.
+#
+# Port convention: all host-exposed ports in this project are 7xxx.
+# (8xxx range is reserved for other apps on the host.)
+#
+# Common commands:
+#   docker compose up -d                  # bring up stack
+#   docker compose down                   # stop (data volumes retained)
+#   docker compose down -v                # stop AND destroy volumes (DATA LOSS)
+#   docker compose pull                   # refresh images
+#   docker compose logs -f stash-postgres
+
+name: stash_self_hosted
+
+include:
+  - compose/postgres.yml
+  - compose/backend.yml
+
+# ── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  # PostgreSQL data — survives `docker compose down`, destroyed only by `down -v`.
+  stash-postgres-data:
+
+# ── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  # Backend services ↔ PostgreSQL.
+  stash-backend-net:
+    driver: bridge
+  # Shared bridge network with the Hiemdall compose stack. Create once per host:
+  #   docker network create tb-shared
+  # Declared external so `docker compose up` doesn't try to recreate it.
+  tb-shared:
+    external: true

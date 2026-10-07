@@ -1,0 +1,55 @@
+# ── compose/backend.yml ─────────────────────────────────────────────────────
+# Stash backend microservices.
+# Add new Spring Boot services here as the platform grows.
+#
+# Network rules:
+#   - stash-backend-net  → reach PostgreSQL (host=stash-postgres, port=5432).
+#   - tb-shared          → external bridge network shared with the Hiemdall
+#     compose stack; container reaches Hiemdall at `http://hiemdall:9082`.
+#     Create once per host: `docker network create tb-shared`.
+#
+# Image lifecycle:
+#   The image is pulled from the registry. Build + publish from the Java repo
+#   before `up`:
+#     cd /Users/obake/codebase/S.T.A.S.H/java
+#     ./docker_build.sh --push          # or whatever push script lives alongside
+#   Override tag per env via STASH_USER_ENGINE_IMAGE_TAG; `latest` is fine for
+#   local dev.
+
+services:
+  stash-user-engine:
+    image: obake/stash-user-engine:${STASH_USER_ENGINE_IMAGE_TAG:-latest}
+    pull_policy: always
+    container_name: stash-user-engine
+    restart: unless-stopped
+    depends_on:
+      stash-postgres:
+        condition: service_healthy
+    # Port convention: host 7xxx. Container listens on 8083 (server.port).
+    ports:
+      - "${STASH_USER_ENGINE_HOST_PORT:-7083}:8083"
+    environment:
+      # ── Datasource (application.yml reads STASH_DB_*) ──────────────────────
+      STASH_DB_URL:       jdbc:postgresql://${PG_HOST:-stash-postgres}:${PG_PORT:-5432}/${PG_DATABASE}
+      STASH_DB_USER:      ${PG_USER}
+      STASH_DB_PASSWORD:  ${PG_PASSWORD}
+
+      # ── Hiemdall back-channel (reached over tb-shared net) ─────────────────
+      HIEMDALL_BASE_URL:  ${HIEMDALL_BASE_URL:-http://hiemdall:9082}
+      HIEMDALL_APP_ID:    ${HIEMDALL_APP_ID:-stash}
+      INTERNAL_SVC_TOKEN: ${INTERNAL_SVC_TOKEN}
+
+      # ── Refresh/access-token AES-GCM key ───────────────────────────────────
+      STASH_TOKEN_ENC_KEY: ${STASH_TOKEN_ENC_KEY}
+
+      # ── CORS allow-list for the SPA ────────────────────────────────────────
+      VITE_USER_ENGINE_BASE_URL: ${VITE_USER_ENGINE_BASE_URL}
+
+      # ── Observability ──────────────────────────────────────────────────────
+      SPRING_APPLICATION_NAME: stash-user-engine
+      LOG_DIR: /logs
+    volumes:
+      - ./logs/stash-user-engine:/logs
+    networks:
+      - stash-backend-net
+      - tb-shared
