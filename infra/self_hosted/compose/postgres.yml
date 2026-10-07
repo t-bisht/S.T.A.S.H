@@ -1,0 +1,40 @@
+# ── compose/postgres.yml ─────────────────────────────────────────────────────
+# PostgreSQL 16 (alpine) instance for Stash.
+#
+# Schema initialisation:
+#   All .sql files in pg-init/ are executed once on first container startup
+#   (when the data volume is empty), in alphabetical order.
+#   To add a new table: create a numbered .sql file in pg-init/.
+#   To apply it to an existing environment WITHOUT wiping data, run manually:
+#     psql -h 127.0.0.1 -p 7432 -U ${PG_USER} -d ${PG_DATABASE} < pg-init/<file>.sql
+#
+# Ports:
+#   stash-postgres → host 7432 (project convention: all host ports are 7xxx)
+#
+# Data persistence:
+#   Volume `stash-postgres-data` (declared in root docker-compose.yml) survives
+#   container restarts and `docker compose down`. Only `down -v` wipes it.
+
+services:
+  stash-postgres:
+    image: postgres:16-alpine
+    pull_policy: if_not_present
+    container_name: stash-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${PG_DATABASE}
+      POSTGRES_USER:     ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    volumes:
+      - stash-postgres-data:/var/lib/postgresql/data
+      - ../pg-init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - stash-backend-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    ports:
+      - "7432:5432"
