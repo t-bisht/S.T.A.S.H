@@ -1,71 +1,62 @@
 // ─── GoogleLoginButton.tsx ─────────────────────────────────────
-// Reusable "Sign in with Google" button. Pure UI — no auth call,
-// no SDK coupling. Caller passes an `onClick` handler which will
-// later invoke the Google OAuth flow via `@react-oauth/google` or
-// a direct redirect to the backend endpoint.
+// "Sign in with Google" affordance. Renders Google's four-color "G"
+// glyph next to a label. Two call shapes are supported:
 //
-// Keeping this component API-agnostic lets us swap the auth
-// backend (direct Google popup vs. server-driven redirect) without
-// touching callers.
+//   - As a plain button:  <GoogleLoginButton onClick={...} />
+//   - As an anchor link:  <GoogleLoginButton asChild><a href={...}>Sign in</a></GoogleLoginButton>
+//
+// The anchor form is the Phase 3 default — Hiemdall-brokered OAuth needs a
+// real browser navigation, not a JS fetch. Styling + accessibility are shared.
 
-import { cn } from "@/lib/cn";
+import * as React from "react";
 
-interface GoogleLoginButtonProps {
-  // Fired when the user clicks the button. API wiring plugs in here.
-  onClick?: () => void;
-  // Disable interaction (e.g. during an in-flight auth request).
-  disabled?: boolean;
-  // Optional className override for layout tweaks at call sites.
-  className?: string;
+import { Button, type ButtonProps } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+export interface GoogleLoginButtonProps
+  extends Omit<ButtonProps, "variant" | "size"> {
   // Visible label — defaults to Google's recommended copy.
   label?: string;
 }
 
-/**
- * GoogleLoginButton
- * Renders Google's brand-approved "G" glyph + a label.
- * Styled as a white pill with a subtle border, matching Google's
- * official sign-in button guidelines (approximation, not exact asset).
- */
-export function GoogleLoginButton({
-  onClick,
-  disabled = false,
-  className,
-  label = "Sign in with Google",
-}: GoogleLoginButtonProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      className={cn(
-        // Base layout — flex row, pill shape, comfortable touch target.
-        "inline-flex items-center justify-center gap-3",
-        "h-12 px-6 rounded-full",
-        // Surface — white background, hairline border matches Google spec.
-        "bg-surface-0 border border-surface-200",
-        // Typography — medium weight, neutral text.
-        "text-sm font-medium text-surface-900",
-        // Interaction — subtle hover + focus ring in brand color.
-        "transition-colors hover:bg-surface-50",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
-        // Disabled state — fade + block pointer.
-        "disabled:opacity-60 disabled:cursor-not-allowed",
-        className,
-      )}
-    >
-      <GoogleGlyph />
-      <span>{label}</span>
-    </button>
-  );
-}
+export const GoogleLoginButton = React.forwardRef<
+  HTMLButtonElement,
+  GoogleLoginButtonProps
+>(
+  (
+    { asChild = false, className, label = "Sign in with Google", children, ...rest },
+    ref,
+  ) => {
+    const content = children ?? (
+      <>
+        <GoogleGlyph />
+        <span>{label}</span>
+      </>
+    );
+
+    return (
+      <Button
+        ref={ref}
+        asChild={asChild}
+        variant="outline"
+        size="pill"
+        aria-label={asChild ? undefined : label}
+        className={cn(
+          "gap-3 border-surface-200 bg-surface-0 text-surface-900 hover:bg-surface-50",
+          className,
+        )}
+        {...rest}
+      >
+        {content}
+      </Button>
+    );
+  },
+);
+GoogleLoginButton.displayName = "GoogleLoginButton";
 
 /**
- * GoogleGlyph
- * Google's four-color "G" rendered as inline SVG so we avoid
- * shipping an image asset for a single icon. 18x18 matches Google's
- * documented sign-in button icon size.
+ * Four-color "G" rendered as inline SVG to avoid shipping an image asset for
+ * a single icon. 18x18 matches Google's documented sign-in button spec.
  */
 function GoogleGlyph() {
   return (
