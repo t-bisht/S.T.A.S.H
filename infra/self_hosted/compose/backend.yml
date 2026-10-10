@@ -25,9 +25,9 @@ services:
     depends_on:
       stash-postgres:
         condition: service_healthy
-    # Port convention: host 7xxx. Container listens on 8083 (server.port).
+    # Port convention: all Stash ports in 7xxx range (host + container).
     ports:
-      - "${STASH_USER_ENGINE_HOST_PORT:-7083}:8083"
+      - "${STASH_USER_ENGINE_HOST_PORT:-7083}:7083"
     environment:
       # ── Datasource (application.yml reads STASH_DB_*) ──────────────────────
       STASH_DB_URL:       jdbc:postgresql://${PG_HOST:-stash-postgres}:${PG_PORT:-5432}/${PG_DATABASE}

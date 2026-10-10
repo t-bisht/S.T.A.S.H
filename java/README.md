@@ -5,7 +5,7 @@ Gradle multi-project. Shared build logic in `buildSrc/`, versions in
 
 ## Subprojects
 
-- `user_engine` — user profile management + login (Google OAuth, session lifecycle). Port 8083.
+- `user_engine` — user profile management + login (Google OAuth, session lifecycle). Port 7083.
 
 ## Build
 
@@ -15,3 +15,8 @@ cd java
 ./gradlew :user_engine:bootJar               # runnable fat JAR
 ./gradlew format                             # Spotless on all subprojects
 ```
+
+## Key Generation 
+
+- Command to generate 
+  - (STASH_TOKEN_ENC_KEY) openssl rand -base64 32

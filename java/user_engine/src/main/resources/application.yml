@@ -7,7 +7,7 @@ spring:
     password: ${STASH_DB_PASSWORD:pwd}
 
 server:
-  port: 8083
+  port: 7083
 
 management:
   endpoints:

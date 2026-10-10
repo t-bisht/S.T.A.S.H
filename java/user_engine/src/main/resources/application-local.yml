@@ -1,0 +1,5 @@
+# Local-dev overrides. Activate with SPRING_PROFILES_ACTIVE=local.
+# Only the keys that differ from application.yml belong here.
+
+session:
+  secure: false        # local SPA runs on http://localhost:5173; Secure cookies drop over plain HTTP.

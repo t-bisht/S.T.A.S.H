@@ -32,3 +32,14 @@ Multiple clients can exist under one branding — role of that distinction still
 
 - Credentials files (`g_credentials.md`, `gcloud_app_credentials.json`) are gitignored — never commit them or their contents.
 - Log substantive setup/design decisions in `resources/jlog/app_development_log.md` under the appropriate Day heading.
+
+## Port Convention
+
+All Stash service ports — host **and** container-internal — live in the **7xxx range (7000–7999)**. The 8xxx range is reserved for other apps the developer runs locally; using 7xxx avoids collisions.
+
+- Pick a 7xxx value for `server.port`, `EXPOSE`, Dockerfile healthchecks, compose `ports:` mappings, and all README/doc references.
+- Compose port mapping should be symmetric (e.g. `7083:7083`), not translate from an 8xxx container port.
+- External services this repo integrates with (e.g. Hiemdall at `9082`) keep their own ports — the 7xxx rule applies only to Stash-owned services.
+- Known assignments:
+  - PostgreSQL: `7432` (host) → `5432` (container, Postgres default stays)
+  - `user_engine`: `7083`

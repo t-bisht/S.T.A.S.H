@@ -1,6 +1,6 @@
 # user_engine
 
-User profile + login management service. Spring Boot 3.3 on Java 21. Port 8083.
+User profile + login management service. Spring Boot 3.3 on Java 21. Port 7083.
 
 ## Run
 
@@ -12,4 +12,4 @@ User profile + login management service. Spring Boot 3.3 on Java 21. Port 8083.
 
 ## Health
 
-`GET http://localhost:8083/actuator/health`
+`GET http://localhost:7083/actuator/health`

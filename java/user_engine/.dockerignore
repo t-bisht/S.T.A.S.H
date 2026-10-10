@@ -1,0 +1,10 @@
+# Only build/libs is needed inside the image build context.
+# Everything else bloats the context + leaks source into the image.
+
+*
+!build
+!Dockerfile
+build/*
+!build/libs
+build/libs/*
+!build/libs/user-engine-*.jar
