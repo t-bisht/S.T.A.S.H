@@ -2,6 +2,7 @@ package org.tb.stash.user.session.domain;
 
 import java.util.UUID;
 import org.tb.stash.user.core.domain.User;
+import org.tb.stash.user.session.controller.SessionCookieFilter;
 
 /**
  * Request-scoped principal established by {@link SessionCookieFilter}.
