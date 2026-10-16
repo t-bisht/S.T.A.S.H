@@ -15,6 +15,13 @@ describe("resolveErrorMessage", () => {
     }
   });
 
+  it("signed_out copy never mentions Google, tokens or expiry", () => {
+    expect(errorMessages.signed_out).toBe(
+      "You've been signed out. Please sign in again to continue.",
+    );
+    expect(errorMessages.signed_out).not.toMatch(/google|token|expir/i);
+  });
+
   it("falls back to internal_error for unknown codes", () => {
     expect(resolveErrorMessage("not_a_real_code")).toBe(
       errorMessages.internal_error,

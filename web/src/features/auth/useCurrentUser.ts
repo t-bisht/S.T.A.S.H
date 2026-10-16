@@ -3,6 +3,8 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import type { MeResponse } from "@/types/auth";
 
+import { clearDeliberateSignOut } from "./signOutIntent";
+
 export const CURRENT_USER_KEY = ["me"] as const;
 
 /**
@@ -18,6 +20,7 @@ export function useCurrentUser(): UseQueryResult<MeResponse | null> {
       if (!res.ok) {
         throw new Error(`/me failed with ${res.status}`);
       }
+      clearDeliberateSignOut();
       return (await res.json()) as MeResponse;
     },
     staleTime: 60_000,

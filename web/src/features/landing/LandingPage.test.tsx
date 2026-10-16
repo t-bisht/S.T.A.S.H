@@ -72,6 +72,26 @@ describe("LandingPage", () => {
     expect(banner.textContent).toMatch(/cancelled the Google sign-in/i);
   });
 
+  it("shows the signed-out notice with neutral styling", async () => {
+    mockApiFetch.mockResolvedValueOnce(unauthenticated());
+    renderAt("/?error=signed_out");
+
+    const banner = await screen.findByTestId("login-error-banner");
+    expect(banner).toHaveAttribute("role", "alert");
+    expect(banner).toHaveAttribute("data-variant", "default");
+    expect(banner.textContent).toBe(
+      "You've been signed out. Please sign in again to continue.",
+    );
+  });
+
+  it("uses destructive styling for real errors", async () => {
+    mockApiFetch.mockResolvedValueOnce(unauthenticated());
+    renderAt("/?error=access_denied");
+
+    const banner = await screen.findByTestId("login-error-banner");
+    expect(banner).toHaveAttribute("data-variant", "destructive");
+  });
+
   it("falls back to the generic message for an unknown error code", async () => {
     mockApiFetch.mockResolvedValueOnce(unauthenticated());
     renderAt("/?error=totally_made_up");

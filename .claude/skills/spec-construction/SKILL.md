@@ -1,11 +1,11 @@
 ---
 name: spec-construction
-description: Build a concise, table-driven technical spec for a change in this monorepo. Uses PlantUML for architecture + sequence diagrams, covers API contracts, DB schema, exceptions, and deployment strategy inferred from the repo. Trigger when the user says "write a spec", "spec this out", "create a design doc", "/spec", or invokes /spec-construction.
+description: Build a concise, table-driven technical spec for a change in this monorepo, written for implementation agents. No diagrams — tables and numbered steps only. Covers API contracts, DB schema, exceptions, and deployment strategy inferred from the repo. Trigger when the user says "write a spec", "spec this out", "create a design doc", "/spec", or invokes /spec-construction.
 ---
 
 # spec-construction
 
-Generates one self-contained `.md` spec per change. Terse, table-first, engine-specific. Uses PlantUML fenced blocks for diagrams — never ASCII art.
+Generates one self-contained `.md` spec per change. Terse, table-first, engine-specific. Primary reader is a development agent, so every line must be normative: no diagrams, no restated content.
 
 ## When invoked
 
@@ -25,9 +25,9 @@ The user names a change ("spec the Gmail ingestion pipe", "spec for user login")
 ## Hard rules
 
 - **Tables over prose.** Every section that can be a table, is. Free text only where a table would be silly (motivation, one-line rationales).
-- **PlantUML only for diagrams.** Fenced ` ```plantuml ` block with `@startuml` / `@enduml`. Two diagram types allowed:
-  - **Component / class** — show what changes structurally. New nodes marked `<<new>>`, altered `<<changed>>`, removed `<<removed>>`.
-  - **Sequence** — one per distinct workflow (happy path, main failure path). Use `participant` for each service by its compose name (`web`, `user_engine`, `ingestion`, `stager`, `postgres`).
+- **No diagrams** (PlantUML, Mermaid, ASCII). They duplicate the tables, drift from them, and cost context. Express structure as the Files table and flows as numbered steps.
+- **Workflows = numbered steps.** One list per distinct flow (happy path, main failure path). Each step names the actor/class, the action, and the branch outcome (`none → OAuthAccountNotFoundException (404)`). Use nested numbering for loops. Add a rules table (`S1…`, `G1…`) only for constraints that are not a step.
+- **Say each fact once.** If a rule lives in a table, steps reference it (`apply O2`) instead of restating it.
 - **Engine-specific.** API contract tables use the framework's real conventions: FastAPI → pydantic model names; Spring → DTO class + validation annotations; React → hook/route names.
 - **Contracts, not narratives.** For every endpoint: method, path, request schema, response schema, auth, status codes. For every table: column, type, constraints, index, migration file.
 - **Exception table is mandatory** for any change that adds error paths. Columns: trigger condition, exception/error type, HTTP status (or side-effect), user-visible message, log level.
@@ -40,8 +40,8 @@ The user names a change ("spec the Gmail ingestion pipe", "spec for user login")
 1. Header table (feature, engine(s), owner, status, date, related jlog day)
 2. Motivation — ≤3 sentences
 3. Scope table (In / Out)
-4. Architecture change — PlantUML component diagram
-5. Workflows — one PlantUML sequence per flow
+4. Architecture change — one-sentence structure summary + Files table (path, new/changed, content)
+5. Workflows — numbered steps per flow
 6. API contracts — one sub-table per endpoint
 7. Database schema — table-per-table, plus migration list
 8. Exception handling table
@@ -52,7 +52,7 @@ The user names a change ("spec the Gmail ingestion pipe", "spec for user login")
 ## Anti-patterns to refuse
 
 - Verbose "background" paragraphs that duplicate CLAUDE.md.
-- Sequence diagrams drawn in ASCII.
+- Any diagram, or prose that repeats a table.
 - API sections written as bullet lists instead of tables.
 - "TBD" everywhere — if genuinely unknown, put it in the Open Questions table with an owner and a decision-by date.
 - Speculative future phases. Spec only the change being proposed now.

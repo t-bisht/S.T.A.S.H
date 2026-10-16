@@ -20,7 +20,10 @@ function hiemdallLoginUrl(): string {
 export function LandingPage() {
   const { data: user, isLoading } = useCurrentUser();
   const [params] = useSearchParams();
-  const errorMessage = resolveErrorMessage(params.get("error"));
+  const errorCode = params.get("error");
+  const errorMessage = resolveErrorMessage(errorCode);
+  // "Signed out" is information, not a failure: neutral banner styling.
+  const bannerVariant = errorCode === "signed_out" ? "default" : "destructive";
 
   if (isLoading) return <AuthLoadingScreen />;
   if (user) return <Navigate to="/dashboard" replace />;
@@ -68,7 +71,8 @@ export function LandingPage() {
           {errorMessage && (
             <div className="mt-4 flex justify-center">
               <Alert
-                variant="destructive"
+                variant={bannerVariant}
+                data-variant={bannerVariant}
                 data-testid="login-error-banner"
                 className="max-w-md text-left"
               >

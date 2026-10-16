@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api";
 
+import { markDeliberateSignOut } from "./signOutIntent";
 import { CURRENT_USER_KEY } from "./useCurrentUser";
 
 /**
@@ -13,6 +14,8 @@ export function useLogout() {
 
   return useMutation<void, Error, void>({
     mutationFn: async () => {
+      // Before the cache is cleared, so RequireAuth doesn't show "signed out".
+      markDeliberateSignOut();
       const res = await apiFetch("/auth/logout", { method: "POST" });
       if (!res.ok && res.status !== 204) {
         throw new Error(`logout failed: ${res.status}`);

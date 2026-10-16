@@ -15,11 +15,14 @@ export interface SessionResponse extends MeResponse {
 }
 
 /**
- * Error codes carried on the login page as `/?error=<code>`. Three sources:
+ * Error codes carried on the login page as `/?error=<code>`. Four sources:
  *   - Hiemdall redirect fragment on OAuth failure (`access_denied`, `csrf_mismatch`,
  *     `token_exchange_failed`, `internal_error`).
  *   - SPA-synthesized when the handoff is missing (`missing_handoff`).
  *   - SPA-synthesized when `/auth/session` fails (`session_failed`).
+ *   - SPA-synthesized when a signed-in user's session disappears server-side
+ *     (`signed_out`) — e.g. user_engine force-logged them out. Informational,
+ *     not an error banner.
  *
  * Unknown codes fall back to a generic message via `errorMessages`.
  */
@@ -29,4 +32,5 @@ export type ErrorCode =
   | "token_exchange_failed"
   | "internal_error"
   | "missing_handoff"
-  | "session_failed";
+  | "session_failed"
+  | "signed_out";

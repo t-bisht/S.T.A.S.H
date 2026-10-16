@@ -23,75 +23,34 @@
 
 ## 3. Architecture change
 
-Legend: `<<new>>` added by this spec, `<<changed>>` altered, `<<removed>>` deleted.
+<One sentence: which components are added/changed and how they connect.>
 
-```plantuml
-@startuml
-skinparam componentStyle rectangle
+### 3.1 Files
 
-package "web (nginx)" {
-  [React SPA]
-}
-
-package "java" {
-  [user_engine] <<changed>>
-}
-
-package "py" {
-  [ingestion] <<new>>
-  [stager]
-}
-
-database "postgres" as pg {
-  [expenses] <<new>>
-}
-
-[React SPA] --> [user_engine] : /api/**
-[React SPA] --> [ingestion]   : /ingestion/**
-[ingestion] --> pg
-[stager]    --> pg
-[user_engine] --> pg
-@enduml
-```
+| Path                                              | Change  | Content                                        |
+|---------------------------------------------------|---------|------------------------------------------------|
+| `py/ingestion/app/routes/scan.py`                 | new     | `POST /ingestion/gmail/scan` (§5.2)            |
+| `java/user_engine/.../scan/controller/ScanController.java` | new | `POST /api/scan` (§5.1)                  |
+| `infra/postgres/init/02_expenses.sql`             | new     | DDL §6.1                                       |
 
 ## 4. Workflows
 
 ### 4.1 <Happy path — one-line name>
 
-```plantuml
-@startuml
-autonumber
-actor User
-participant "web" as W
-participant "user_engine" as UE
-participant "ingestion" as I
-database "postgres" as PG
-
-User -> W    : click "Scan bills"
-W    -> UE   : POST /api/scan {since}
-UE   -> UE   : verify JWT
-UE   -> I    : POST /ingestion/gmail/scan
-I    -> PG   : INSERT scan_run
-I    --> UE  : 202 {run_id}
-UE   --> W   : 202 {run_id}
-@enduml
-```
+1. `web`: user clicks "Scan bills" → `POST /api/scan {since}`.
+2. `user_engine`: verify session; invalid → 401.
+3. `user_engine` → `ingestion`: `POST /ingestion/gmail/scan`.
+4. `ingestion`: `INSERT scan_run`; return 202 `{run_id}`.
+5. `user_engine` → `web`: 202 `{run_id}`.
 
 ### 4.2 <Failure path — e.g. token expired>
 
-```plantuml
-@startuml
-autonumber
-participant "ingestion" as I
-participant "Gmail API" as G
-database "postgres" as PG
+1. `ingestion` → Gmail `GET /messages` → 401 `invalid_grant`.
+2. `ingestion`: `UPDATE scan_run SET status='auth_failed'`; return 401 `{code:"GMAIL_AUTH_EXPIRED"}`.
 
-I -> G  : GET /messages
-G --> I : 401 invalid_grant
-I -> PG : UPDATE scan_run SET status='auth_failed'
-I --> UE: 401 {code:"GMAIL_AUTH_EXPIRED"}
-@enduml
-```
+| Rule | Constraint not expressed as a step |
+|------|------------------------------------|
+| R1   | <e.g. never call Gmail inside a DB transaction> |
 
 ## 5. API contracts
 

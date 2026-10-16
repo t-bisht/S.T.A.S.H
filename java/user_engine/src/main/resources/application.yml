@@ -23,6 +23,7 @@ hiemdall:
   app-id:         ${HIEMDALL_APP_ID:stash}
   internal-token: ${INTERNAL_SVC_TOKEN:}
   exchange-path:  /internal/auth/exchange
+  refresh-path:   /internal/auth/google/refresh
 
 session:
   cookie-name: STASH_SESSION
@@ -36,3 +37,8 @@ tokens:
 
 cors:
   allowed-origins: ${VITE_USER_ENGINE_BASE_URL:http://localhost:5173}
+
+# Google access-token refresh. Remaining keys (interval, refresh-window, page-size,
+# coalesce-window, lock-wait, initial-delay) default in TokenRefreshProperties.
+token-refresh:
+  enabled: ${TOKEN_REFRESH_ENABLED:true}   # false disables the scheduled sweep only

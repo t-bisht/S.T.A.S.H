@@ -14,6 +14,8 @@ export const errorMessages: Record<ErrorCode, string> = {
     "We didn't receive a sign-in code from Google. Please try again.",
   session_failed:
     "We couldn't start your Stash session. Please try signing in again.",
+  // Deliberately vague: never mention Google, tokens or expiry to the user.
+  signed_out: "You've been signed out. Please sign in again to continue.",
 };
 
 export function resolveErrorMessage(code: string | null | undefined): string | null {

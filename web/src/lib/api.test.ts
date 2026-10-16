@@ -40,7 +40,7 @@ describe("apiFetch", () => {
     );
   });
 
-  it("hard-redirects to '/' on 401 for non-/me paths", async () => {
+  it("hard-redirects to '/' on 401 for /auth/* paths", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce(
       new Response(null, { status: 401 }),
     );
@@ -48,6 +48,26 @@ describe("apiFetch", () => {
     await apiFetch("/auth/session");
 
     expect(window.location.href).toBe("/");
+  });
+
+  it("hard-redirects to the signed-out banner on 401 for any other path", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      new Response(null, { status: 401 }),
+    );
+
+    await apiFetch("/receipts");
+
+    expect(window.location.href).toBe("/?error=signed_out");
+  });
+
+  it("does not redirect on non-401 responses", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      new Response(null, { status: 500 }),
+    );
+
+    await apiFetch("/receipts");
+
+    expect(window.location.href).toBe("");
   });
 
   it("does NOT redirect on 401 for /me", async () => {
