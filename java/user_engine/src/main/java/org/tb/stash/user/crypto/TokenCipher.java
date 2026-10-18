@@ -21,8 +21,9 @@ import org.tb.stash.user.config.TokenEncryptionProperties;
  * <p>Thread-safety: stateless once constructed; the only mutable state is a {@link SecureRandom}
  * instance which is itself thread-safe.
  *
- * <p>{@link #decrypt(byte[], byte[])} is defined for completeness; Phase 2 has no production
- * caller. The future refresh client (deferred feature) will exercise it.
+ * <p>{@link #decrypt(byte[], byte[])} is exercised by the {@code tokenrefresh} feature, which
+ * decrypts the stored refresh token to mint a new access token (and the stored access token when
+ * serving a coalesced refresh).
  */
 @Component
 public class TokenCipher {

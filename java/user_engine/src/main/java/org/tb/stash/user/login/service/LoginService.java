@@ -5,20 +5,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.tb.stash.user.config.SessionProperties;
-import org.tb.stash.user.crypto.Ciphertext;
-import org.tb.stash.user.crypto.TokenCipher;
+import org.tb.stash.user.core.crud.SessionRepository;
 import org.tb.stash.user.core.domain.Session;
 import org.tb.stash.user.core.domain.User;
 import org.tb.stash.user.core.domain.UserOAuthAccount;
-import org.tb.stash.user.hiemdall.service.HiemdallExchangeClient;
+import org.tb.stash.user.crypto.Ciphertext;
+import org.tb.stash.user.crypto.TokenCipher;
 import org.tb.stash.user.hiemdall.domain.HiemdallExchangeResponse;
 import org.tb.stash.user.hiemdall.domain.IdentityClaims;
 import org.tb.stash.user.hiemdall.domain.OAuthTokenBundle;
+import org.tb.stash.user.hiemdall.service.HiemdallExchangeClient;
 import org.tb.stash.user.login.crud.IdentityUpsertService;
 import org.tb.stash.user.login.domain.LoginResponse;
 import org.tb.stash.user.login.domain.LoginResult;
 import org.tb.stash.user.login.domain.UpsertResult;
-import org.tb.stash.user.core.crud.SessionRepository;
 import org.tb.stash.user.session.service.SessionHandleGenerator;
 
 /**
@@ -35,8 +35,8 @@ import org.tb.stash.user.session.service.SessionHandleGenerator;
  * </ul>
  *
  * <p>Both the refresh token and the access token are encrypted with {@link TokenCipher} before
- * reaching the DB. The access-token refresh client (that would call Google's token endpoint when
- * the stored access_token expires) is a deferred feature.
+ * reaching the DB. Keeping the stored access token valid after login is the job of the {@code
+ * tokenrefresh} feature.
  */
 @Service
 public class LoginService {

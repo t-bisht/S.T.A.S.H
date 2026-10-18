@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.tb.stash.user.config.TokenRefreshProperties;
 
 /**
- * Runs {@link TokenRefreshService#sweep()} with a fixed delay of {@code token-refresh.interval}
+ * Runs {@link TokenRefreshSweeper#sweep()} with a fixed delay of {@code token-refresh.interval}
  * after an initial {@code token-refresh.initial-delay}.
  *
  * <p>Registered programmatically (rather than {@code @Scheduled} placeholders) so the timings come
@@ -23,11 +23,11 @@ public class TokenRefreshScheduler implements SchedulingConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(TokenRefreshScheduler.class);
 
-    private final TokenRefreshService service;
+    private final TokenRefreshSweeper sweeper;
     private final TokenRefreshProperties props;
 
-    public TokenRefreshScheduler(TokenRefreshService service, TokenRefreshProperties props) {
-        this.service = service;
+    public TokenRefreshScheduler(TokenRefreshSweeper sweeper, TokenRefreshProperties props) {
+        this.sweeper = sweeper;
         this.props = props;
     }
 
@@ -45,7 +45,7 @@ public class TokenRefreshScheduler implements SchedulingConfigurer {
     /** Never throws: an escaped exception would not stop the schedule, but must be logged. */
     void runSweep() {
         try {
-            service.sweep();
+            sweeper.sweep();
         } catch (RuntimeException e) {
             log.error("token_refresh.sweep.crashed", e);
         }

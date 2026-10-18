@@ -3,12 +3,12 @@ package org.tb.stash.user.login.crud;
 import java.time.Instant;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tb.stash.user.crypto.Ciphertext;
-import org.tb.stash.user.core.domain.User;
-import org.tb.stash.user.core.domain.UserOAuthAccount;
-import org.tb.stash.user.hiemdall.domain.IdentityClaims;
 import org.tb.stash.user.core.crud.UserOAuthAccountRepository;
 import org.tb.stash.user.core.crud.UserRepository;
+import org.tb.stash.user.core.domain.User;
+import org.tb.stash.user.core.domain.UserOAuthAccount;
+import org.tb.stash.user.crypto.Ciphertext;
+import org.tb.stash.user.hiemdall.domain.IdentityClaims;
 import org.tb.stash.user.login.domain.UpsertResult;
 import org.tb.stash.user.login.service.LoginService;
 
@@ -22,6 +22,9 @@ import org.tb.stash.user.login.service.LoginService;
  * <p>Both token halves are rewritten on every login (first-time and re-login) with fresh
  * ciphertexts and fresh nonces. {@code access_token_expires_at} is a wall-clock Instant computed by
  * the caller as {@code now() + tokens.expires_in}.
+ *
+ * <p>A login also heals a dead refresh token: both branches write {@code login_required = false}
+ * and clear {@code last_refresh_error}, so the token-refresh sweep picks the account up again.
  */
 @Service
 public class IdentityUpsertService {
@@ -110,7 +113,10 @@ public class IdentityUpsertService {
                         accessToken.ciphertext(),
                         accessToken.nonce(),
                         accessTokenExpiresAt,
-                        existing.linkedAt()));
+                        existing.linkedAt(),
+                        false,
+                        existing.lastRefreshedAt(),
+                        null));
         return new UpsertResult(updated, false);
     }
 
@@ -135,7 +141,10 @@ public class IdentityUpsertService {
                         accessToken.ciphertext(),
                         accessToken.nonce(),
                         accessTokenExpiresAt,
-                        Instant.now()));
+                        Instant.now(),
+                        false,
+                        null,
+                        null));
         return new UpsertResult(saved, true);
     }
 }

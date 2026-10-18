@@ -15,13 +15,20 @@ import org.springframework.data.relational.core.mapping.Table;
  * access_token_expires_at}. The id token is intentionally not stored.
  *
  * <p>Both token halves are rewritten on every login (first-time and re-login) with fresh ciphertext
- * + fresh nonce; the refresh client that would exercise {@code refresh_token} to mint a new
- * access_token is a deferred feature.
+ * + fresh nonce. Between logins the {@code tokenrefresh} feature swaps the stored {@code
+ * refresh_token} (via Hiemdall) for a new access token, rewriting the access-token half and — when
+ * Google rotates it — the refresh-token half.
  *
  * <p>Uniqueness is enforced on {@code (provider, provider_sub)}: one row per provider account
  * globally. A single STASH user may own many rows (future multi-provider linking).
  *
  * @param provider identifier string; v1 only {@code "google"}.
+ * @param loginRequired {@code true} once the refresh token is known dead (Hiemdall returned {@code
+ *     reauth_required}); refresh is skipped until the user signs in again, which resets it.
+ * @param lastRefreshedAt wall-clock of the last successful refresh; {@code null} if never refreshed
+ *     since linking. Used to coalesce concurrent on-demand refreshes.
+ * @param lastRefreshError stable code of the last failed refresh attempt (e.g. {@code
+ *     upstream_unavailable}); {@code null} after a success or a login. Never token data.
  */
 @Table("user_oauth_accounts")
 public record UserOAuthAccount(
@@ -36,7 +43,10 @@ public record UserOAuthAccount(
         byte[] accessTokenEnc,
         byte[] accessTokenNonce,
         Instant accessTokenExpiresAt,
-        Instant linkedAt) {
+        Instant linkedAt,
+        boolean loginRequired,
+        Instant lastRefreshedAt,
+        String lastRefreshError) {
 
     public static final String PROVIDER_GOOGLE = "google";
 }

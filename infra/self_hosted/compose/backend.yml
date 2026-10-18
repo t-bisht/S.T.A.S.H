@@ -42,6 +42,11 @@ services:
       # ── Refresh/access-token AES-GCM key ───────────────────────────────────
       STASH_TOKEN_ENC_KEY: ${STASH_TOKEN_ENC_KEY}
 
+      # ── Google access-token refresh sweep (TokenRefreshProperties) ─────────
+      TOKEN_REFRESH_ENABLED:        ${TOKEN_REFRESH_ENABLED:-true}
+      TOKEN_REFRESH_INTERVAL:       ${TOKEN_REFRESH_INTERVAL:-PT10M}
+      TOKEN_REFRESH_REFRESH_WINDOW: ${TOKEN_REFRESH_REFRESH_WINDOW:-PT15M}
+
       # ── CORS allow-list for the SPA ────────────────────────────────────────
       VITE_USER_ENGINE_BASE_URL: ${VITE_USER_ENGINE_BASE_URL}
 

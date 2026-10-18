@@ -30,7 +30,9 @@ public class AccountLocks {
      *     {@code false} on timeout or interruption (interrupt flag restored)
      */
     public boolean tryLock(UUID accountId, Duration wait) {
+        // checks and add thread (UUID) tomap
         ReentrantLock lock = locks.computeIfAbsent(accountId, id -> new ReentrantLock());
+
         if (wait.isZero() || wait.isNegative()) {
             return lock.tryLock();
         }
