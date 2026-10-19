@@ -49,7 +49,8 @@ abstract class TokenRefreshTestSupport {
                     Duration.ofMinutes(15),
                     2,
                     Duration.ofSeconds(30),
-                    Duration.ofSeconds(10));
+                    Duration.ofSeconds(10),
+                    Duration.ofMinutes(2));
 
     static final Clock CLOCK = Clock.fixed(NOW, ZoneOffset.UTC);
 

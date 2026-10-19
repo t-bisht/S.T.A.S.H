@@ -18,6 +18,7 @@ import org.springframework.web.client.RestClient;
 @EnableScheduling
 @EnableConfigurationProperties({
     HiemdallProperties.class,
+    InternalAuthProperties.class,
     SessionProperties.class,
     TokenEncryptionProperties.class,
     TokenRefreshProperties.class

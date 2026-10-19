@@ -29,7 +29,22 @@ class TokenRefreshPropertiesTest {
                     assertThat(props.pageSize()).isEqualTo(50);
                     assertThat(props.coalesceWindow()).isEqualTo(Duration.ofSeconds(30));
                     assertThat(props.lockWait()).isEqualTo(Duration.ofSeconds(10));
+                    assertThat(props.minValidity()).isEqualTo(Duration.ofMinutes(2));
                 });
+    }
+
+    @Test
+    void minValidityEqualToRefreshWindow_failsStartup() {
+        runner.withPropertyValues(
+                        "token-refresh.refresh-window=PT15M", "token-refresh.min-validity=PT15M")
+                .run(context -> assertThat(context).hasFailed());
+    }
+
+    @Test
+    void minValidityGreaterThanRefreshWindow_failsStartup() {
+        runner.withPropertyValues(
+                        "token-refresh.refresh-window=PT15M", "token-refresh.min-validity=PT20M")
+                .run(context -> assertThat(context).hasFailed());
     }
 
     @Test

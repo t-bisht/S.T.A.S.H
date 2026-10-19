@@ -18,6 +18,11 @@ management:
     health:
       show-details: when-authorized
 
+# Shared secret guarding user_engine's /internal/** token endpoints (spec 02). Same env var as the
+# outbound Hiemdall token below; startup fails if blank (@NotBlank).
+internal-auth:
+  svc-token: ${INTERNAL_SVC_TOKEN:}
+
 hiemdall:
   base-url:       ${HIEMDALL_BASE_URL:http://localhost:9082}
   app-id:         ${HIEMDALL_APP_ID:stash}
@@ -39,6 +44,7 @@ cors:
   allowed-origins: ${VITE_USER_ENGINE_BASE_URL:http://localhost:5173}
 
 # Google access-token refresh. Remaining keys (interval, refresh-window, page-size,
-# coalesce-window, lock-wait, initial-delay) default in TokenRefreshProperties.
+# coalesce-window, lock-wait, initial-delay, min-validity) default in TokenRefreshProperties.
 token-refresh:
   enabled: ${TOKEN_REFRESH_ENABLED:true}   # false disables the scheduled sweep only
+  min-validity: PT2M                        # spec 02: engines never get a token with less life left
