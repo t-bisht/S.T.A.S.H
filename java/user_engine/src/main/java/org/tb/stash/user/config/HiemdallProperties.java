@@ -12,8 +12,10 @@ import org.springframework.validation.annotation.Validated;
  *
  * @param baseUrl Hiemdall root URL (e.g. {@code http://localhost:9082}).
  * @param appId app id Hiemdall knows us by (v1: {@code "stash"}).
- * @param internalToken shared secret sent as {@code X-Internal-Auth}. Bound from env {@code
- *     INTERNAL_SVC_TOKEN}; must match Hiemdall side exactly.
+ * @param internalToken shared secret sent as {@code X-Internal-Auth} on the outbound calls to
+ *     Hiemdall. Bound from env {@code HIEMDALL_INTERNAL_TOKEN}; must match Hiemdall side exactly.
+ *     Distinct from {@link InternalAuthProperties#svcToken()}, the inbound guard — different trust
+ *     boundary, rotated independently.
  * @param exchangePath path under {@code baseUrl} for the exchange endpoint.
  * @param refreshPath path under {@code baseUrl} for the Google access-token refresh endpoint.
  */

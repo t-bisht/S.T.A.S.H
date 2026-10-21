@@ -18,15 +18,16 @@ management:
     health:
       show-details: when-authorized
 
-# Shared secret guarding user_engine's /internal/** token endpoints (spec 02). Same env var as the
-# outbound Hiemdall token below; startup fails if blank (@NotBlank).
+# Shared secret guarding user_engine's /internal/** token endpoints (spec 02): inbound, presented by
+# Stash backend engines. Distinct from the outbound Hiemdall token below — different trust boundary,
+# rotated independently. Startup fails if blank (@NotBlank).
 internal-auth:
   svc-token: ${INTERNAL_SVC_TOKEN:}
 
 hiemdall:
   base-url:       ${HIEMDALL_BASE_URL:http://localhost:9082}
   app-id:         ${HIEMDALL_APP_ID:stash}
-  internal-token: ${INTERNAL_SVC_TOKEN:}
+  internal-token: ${HIEMDALL_INTERNAL_TOKEN:}
   exchange-path:  /internal/auth/exchange
   refresh-path:   /internal/auth/google/refresh
 

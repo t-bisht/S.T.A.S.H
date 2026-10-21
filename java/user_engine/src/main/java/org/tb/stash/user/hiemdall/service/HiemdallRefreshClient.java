@@ -110,8 +110,8 @@ public class HiemdallRefreshClient {
             return RefreshOutcome.loginRequired();
         }
         log.error(
-                "token_refresh.hiemdall.internal_auth_rejected — check INTERNAL_SVC_TOKEN matches"
-                        + " Hiemdall");
+                "token_refresh.hiemdall.internal_auth_rejected — check HIEMDALL_INTERNAL_TOKEN"
+                        + " matches Hiemdall");
         return RefreshOutcome.configError(RefreshOutcome.HIEMDALL_AUTH);
     }
 

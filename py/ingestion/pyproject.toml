@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ingestion"
+version = "0.1.0"
+description = "STASH Gmail scan & ingestion engine — scans users' Gmail for expense mails and persists clean text for downstream parsing."
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "SQLAlchemy>=2.0.0",
+    "psycopg[binary]>=3.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+# `uv run --package ingestion stash-ingestion` as an alias for `python -m ingestion.main`.
+stash-ingestion = "ingestion.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ingestion"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+# Lets `pytest` resolve the `ingestion` package from src/ without an editable install.
+pythonpath = ["src"]
+addopts = "--import-mode=importlib"
+testpaths = ["tests"]

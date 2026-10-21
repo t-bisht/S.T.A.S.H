@@ -1,0 +1,49 @@
+# ── compose/ingestion.yml ─────────────────────────────────────────────────────
+# STASH Gmail scan & ingestion engine (py/ingestion).
+#
+# A long-running worker (no exposed port — the 7xxx convention is about host-published ports,
+# and this service publishes none). Built standalone from py/ingestion/Dockerfile.
+#
+# Network:
+#   - stash-backend-net → reaches PostgreSQL (host=stash-postgres, port=5432) and the token
+#     broker user_engine (host=stash-user-engine, port=7083).
+#
+# Build:
+#   docker compose build stash-ingestion        # context is py/ingestion/
+
+services:
+  stash-ingestion:
+    build:
+      context: ../../py/ingestion
+      dockerfile: Dockerfile
+    image: obake/stash-ingestion:${STASH_INGESTION_IMAGE_TAG:-latest}
+    container_name: stash-ingestion
+    restart: unless-stopped
+    depends_on:
+      stash-postgres:
+        condition: service_healthy
+      stash-user-engine:
+        condition: service_started
+    environment:
+      # ── Database (shared `stash` DB; reached in-stack as stash-postgres:5432) ──────────────
+      DB_HOST:     ${PG_HOST:-stash-postgres}
+      DB_PORT:     ${PG_PORT:-5432}
+      DB_NAME:     ${PG_DATABASE}
+      DB_USER:     ${PG_USER}
+      DB_PASSWORD: ${PG_PASSWORD}
+
+      # ── Token broker (user_engine on the same backend network) ────────────────────────────
+      USER_ENGINE_BASE_URL: ${STASH_USER_ENGINE_INTERNAL_URL:-http://stash-user-engine:7083}
+      INTERNAL_SVC_TOKEN:   ${INTERNAL_SVC_TOKEN}
+
+      # ── Scheduler knobs (optional; mechanical, not product config) ────────────────────────
+      POLL_INTERVAL_SECONDS: ${INGESTION_POLL_INTERVAL_SECONDS:-60}
+      GMAIL_SKEW_SECONDS:    ${INGESTION_GMAIL_SKEW_SECONDS:-300}
+
+      # ── Observability ─────────────────────────────────────────────────────────────────────
+      LOG_DIR:   /logs
+      LOG_LEVEL: ${INGESTION_LOG_LEVEL:-INFO}
+    volumes:
+      - ./logs/stash-ingestion:/logs
+    networks:
+      - stash-backend-net

@@ -18,6 +18,7 @@ name: stash_self_hosted
 include:
   - compose/postgres.yml
   - compose/backend.yml
+  - compose/ingestion.yml
 
 # ── Volumes ──────────────────────────────────────────────────────────────────
 volumes:

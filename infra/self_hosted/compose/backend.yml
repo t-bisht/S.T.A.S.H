@@ -34,10 +34,13 @@ services:
       STASH_DB_USER:      ${PG_USER}
       STASH_DB_PASSWORD:  ${PG_PASSWORD}
 
-      # ── Hiemdall back-channel (reached over tb-shared net) ─────────────────
-      HIEMDALL_BASE_URL:  ${HIEMDALL_BASE_URL:-http://hiemdall:9082}
-      HIEMDALL_APP_ID:    ${HIEMDALL_APP_ID:-stash}
+      # ── Inbound guard for /internal/** (engines -> user_engine) ────────────
       INTERNAL_SVC_TOKEN: ${INTERNAL_SVC_TOKEN}
+
+      # ── Hiemdall back-channel (reached over tb-shared net) ─────────────────
+      HIEMDALL_BASE_URL:       ${HIEMDALL_BASE_URL:-http://hiemdall:9082}
+      HIEMDALL_APP_ID:         ${HIEMDALL_APP_ID:-stash}
+      HIEMDALL_INTERNAL_TOKEN: ${HIEMDALL_INTERNAL_TOKEN}
 
       # ── Refresh/access-token AES-GCM key ───────────────────────────────────
       STASH_TOKEN_ENC_KEY: ${STASH_TOKEN_ENC_KEY}

@@ -16,9 +16,9 @@ Server-to-server only — for Stash backend engines (e.g. the Gmail scanner), **
 user_engine is the sole holder of the encrypted tokens and `STASH_TOKEN_ENC_KEY`; engines get a
 plaintext Google access token from here instead of touching `user_oauth_accounts`.
 
-**Auth** — every request must carry `X-Internal-Auth: $INTERNAL_SVC_TOKEN` (the same shared secret
-used for the Hiemdall back-channel). Missing/blank/wrong → `401 unauthorized`. Startup fails if the
-secret is blank.
+**Auth** — every request must carry `X-Internal-Auth: $INTERNAL_SVC_TOKEN` (the inbound guard;
+separate from `HIEMDALL_INTERNAL_TOKEN`, the secret user_engine sends *out* to Hiemdall).
+Missing/blank/wrong → `401 unauthorized`. Startup fails if the secret is blank.
 
 `{provider}` is a path segment for forward compatibility; v1 serves only `google` (exact,
 lowercase). Any other value → `400 unsupported_provider`. All responses carry `Cache-Control:
