@@ -7,7 +7,7 @@ React 18 + Vite + TypeScript + Tailwind. Path alias `@/` → `src/`.
 ```bash
 cd web
 npm install
-npm run dev            # localhost:3000
+npm run dev            # localhost:7001
 npm run build          # → dist/
 npm run test           # vitest
 ```

@@ -1,0 +1,46 @@
+# ── compose/pen.yml ───────────────────────────────────────────────────────────
+# STASH content (ledger) parse engine "pen" (py/pen).
+#
+# A long-running worker (no exposed port — the 7xxx convention is about host-published ports,
+# and this service publishes none). Built standalone from py/pen/Dockerfile.
+#
+# Network:
+#   - stash-backend-net → reaches PostgreSQL (host=stash-postgres, port=5432). pen calls an
+#     external LLM endpoint (Groq by default) over the host's default egress — no extra network.
+#
+# Build:
+#   docker compose build stash-pen               # context is py/pen/
+
+services:
+  stash-pen:
+    build:
+      context: ../../py/pen
+      dockerfile: Dockerfile
+    image: obake/stash-pen:${STASH_PEN_IMAGE_TAG:-latest}
+    container_name: stash-pen
+    restart: unless-stopped
+    depends_on:
+      stash-postgres:
+        condition: service_healthy
+    environment:
+      # ── Database (shared `stash` DB; reached in-stack as stash-postgres:5432) ──────────────
+      DB_HOST:     ${PG_HOST:-stash-postgres}
+      DB_PORT:     ${PG_PORT:-5432}
+      DB_NAME:     ${PG_DATABASE}
+      DB_USER:     ${PG_USER}
+      DB_PASSWORD: ${PG_PASSWORD}
+
+      # ── LLM secrets (API keys ONLY; provider/model/endpoint are per-handler CODE config) ───
+      # Each handler picks its own provider in parse_handler_config.py; supply one key per
+      # provider you enable. The v1 swiggy handler uses GROQ_API_KEY.
+      GROQ_API_KEY:       ${PEN_GROQ_API_KEY}             # SECRET — from infra/self_hosted/.env
+      # OPENROUTER_API_KEY: ${PEN_OPENROUTER_API_KEY}     # add when a handler uses OpenRouter
+      # NVIDIA_API_KEY:     ${PEN_NVIDIA_API_KEY}         # add when a handler uses NVIDIA
+
+      # ── Observability ─────────────────────────────────────────────────────────────────────
+      LOG_DIR:   /logs
+      LOG_LEVEL: ${PEN_LOG_LEVEL:-INFO}
+    volumes:
+      - ./logs/stash-pen:/logs
+    networks:
+      - stash-backend-net

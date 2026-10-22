@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pen"
+version = "0.1.0"
+description = "STASH content (ledger) parse engine — reads unparsed expense mails, extracts structured spend via a configurable LLM, and persists it into the online_retail_* tables."
+requires-python = ">=3.12"
+dependencies = [
+    "openai>=1.40.0",
+    "SQLAlchemy>=2.0.0",
+    "psycopg[binary]>=3.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+# `uv run --package pen stash-pen` as an alias for `python -m pen.main`.
+stash-pen = "pen.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pen"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+# Lets `pytest` resolve the `pen` package from src/ without an editable install.
+pythonpath = ["src"]
+addopts = "--import-mode=importlib"
+testpaths = ["tests"]

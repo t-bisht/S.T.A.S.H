@@ -1,6 +1,7 @@
 [tool.uv.workspace]
 members = [
     "ingestion",
+    "pen",
     "stager",
 ]
 

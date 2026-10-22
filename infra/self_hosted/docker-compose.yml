@@ -19,6 +19,7 @@ include:
   - compose/postgres.yml
   - compose/backend.yml
   - compose/ingestion.yml
+  - compose/pen.yml
 
 # ── Volumes ──────────────────────────────────────────────────────────────────
 volumes:
