@@ -6,6 +6,9 @@ Gradle multi-project. Shared build logic in `buildSrc/`, versions in
 ## Subprojects
 
 - `user_engine` — user profile management + login (Google OAuth, session lifecycle). Port 7083.
+- `admin_engine` — admin console + product-catalog management (static-credential auth, catalog
+  review/PATCH with cascade, taxonomy add, audit log). Serves the `web_admin` bundle. Port 7084
+  (loopback-only in compose).
 
 ## Build
 

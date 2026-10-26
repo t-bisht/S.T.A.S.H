@@ -1,0 +1,53 @@
+# ── compose/admin.yml ────────────────────────────────────────────────────────
+# STASH admin console + catalog management engine (java/admin_engine).
+#
+# Security: bound to 127.0.0.1 ONLY. This is a deliberate departure from the other
+# services (user_engine, postgres) which bind all interfaces. Static credentials are
+# acceptable precisely because this binding makes accidental internet exposure
+# structurally impossible. The port is NOT overridable by env var — an override is how
+# a loopback binding gets lost.
+#
+# Network:
+#   - stash-backend-net → reaches PostgreSQL (host=stash-postgres, port=5432).
+#   NOT on tb-shared: admin_engine never talks to Hiemdall.
+#
+# Image lifecycle (same as backend.yml — the image is built, then pulled):
+#   cd web_admin && npm run build       # and copy dist/ -> admin_engine static/ (spec §12.1)
+#   cd java && ./docker_build.sh admin_engine --push
+#   Override tag per env via STASH_ADMIN_IMAGE_TAG; `latest` is fine for local dev.
+
+services:
+  stash-admin-engine:
+    image: obake/stash-admin-engine:${STASH_ADMIN_IMAGE_TAG:-latest}
+    pull_policy: always
+    container_name: stash-admin-engine
+    restart: unless-stopped
+    depends_on:
+      stash-postgres:
+        condition: service_healthy
+    # Loopback-only. Deliberately NOT ${VAR:-7084}:7084 — see header.
+    ports:
+      - "127.0.0.1:7084:7084"
+    environment:
+      # ── Datasource (application.yml reads STASH_DB_*) ──────────────────────
+      STASH_DB_URL:       jdbc:postgresql://${PG_HOST:-stash-postgres}:${PG_PORT:-5432}/${PG_DATABASE}
+      STASH_DB_USER:      ${PG_USER}
+      STASH_DB_PASSWORD:  ${PG_PASSWORD}
+
+      # ── Admin console credentials (startup fails if blank) ─────────────────
+      STASH_ADMIN_USERNAME: ${STASH_ADMIN_USERNAME}
+      STASH_ADMIN_PASSWORD: ${STASH_ADMIN_PASSWORD}
+
+      # ── Observability ──────────────────────────────────────────────────────
+      SPRING_APPLICATION_NAME: stash-admin-engine
+      LOG_DIR: /logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:7084/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    volumes:
+      - ./logs/stash-admin-engine:/logs
+    networks:
+      - stash-backend-net

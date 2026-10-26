@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 
 include ':user_engine'
+include ':admin_engine'

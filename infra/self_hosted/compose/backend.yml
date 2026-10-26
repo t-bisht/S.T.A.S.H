@@ -1,6 +1,8 @@
 # ── compose/backend.yml ─────────────────────────────────────────────────────
 # Stash backend microservices.
-# Add new Spring Boot services here as the platform grows.
+# NOTE: new Spring Boot services get their OWN per-service compose file, not a new
+# block here — see compose/admin.yml (java/admin_engine) for the precedent. This file
+# now holds user_engine specifically; keep one service per compose file going forward.
 #
 # Network rules:
 #   - stash-backend-net  → reach PostgreSQL (host=stash-postgres, port=5432).

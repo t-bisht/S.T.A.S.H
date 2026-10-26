@@ -18,8 +18,10 @@ Polyglot monorepo. Each top-level dir is an independent stack with its own READM
 | Dir | Stack | What | Port |
 |-----|-------|------|------|
 | `java/user_engine` | Spring Boot 3.3.4 / Java 21 (Gradle) | Login, sessions, encrypted OAuth token store, internal token broker for engines | 7083 |
+| `java/admin_engine` | Spring Boot 3.3.4 / Java 21 (Gradle) | Admin console + product-catalog management (review/PATCH with cascade, taxonomy add, audit log); serves the `web_admin` bundle | 7084 (loopback) |
 | `py/ingestion` | Python 3.12 / uv / SQLAlchemy | Long-running scheduled Gmail scan→ingest worker | none (worker) |
 | `web` | React 18 + Vite 6 + TS + Tailwind | Login SPA | 7001 (dev) |
+| `web_admin` | React + Vite + TS | Admin review SPA (served by `admin_engine` in prod) | 7002 (dev) |
 | `infra/self_hosted` | Docker Compose | Postgres + backend + ingestion stack | pg 7432 |
 
 `py/stager` is a planned uv workspace member (listed in `py/pyproject.toml` + `py/README.md`) —
@@ -109,4 +111,6 @@ All Stash-owned service ports — host **and** container-internal — live in th
 - Known assignments:
   - PostgreSQL: `7432` (host) → `5432` (container, Postgres default stays)
   - `user_engine`: `7083`
+  - `admin_engine`: `7084` (bound to `127.0.0.1` only — loopback)
   - `web` dev server: `7001`
+  - `web_admin` dev server: `7002`

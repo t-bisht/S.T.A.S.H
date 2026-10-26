@@ -1,0 +1,19 @@
+// admin_engine — admin console + catalog management service. Port 7084.
+
+plugins {
+    id 'stash.spring-conventions'
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation libs.spring.boot.starter.web
+    implementation libs.spring.boot.starter.actuator
+    implementation libs.spring.boot.starter.validation
+    implementation libs.spring.boot.starter.data.jdbc
+    runtimeOnly    libs.postgresql
+    testImplementation libs.testcontainers.postgresql
+}
+
+bootJar {
+    archiveBaseName = 'admin-engine'
+}

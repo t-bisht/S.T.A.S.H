@@ -79,8 +79,12 @@ CREATE INDEX IF NOT EXISTS idx_order_hist_source ON online_retail_order_history 
 
 -- ─── online_retail_purchase_history ─────────────────────────────────────────
 -- One row per item (child). category_id / sub_category_id are FROZEN at parse time (spec §9):
--- stored rows keep the IDs they got, no backfill. The composite FK (user_id, order_id) ties
--- each item to its parent order (both inserted in the same transaction, spec §7).
+-- pen NEVER backfills them — stored rows keep the IDs pen gave them. The one sanctioned rewrite
+-- is a human correction through the admin console (07_admin_catalog.sql / admin_module backend
+-- api.md §8.2): an admin catalog edit cascades into these two columns in the same transaction and
+-- leaves an admin_audit_log row. No automated process ever rewrites them. The composite FK
+-- (user_id, order_id) ties each item to its parent order (both inserted in the same transaction,
+-- spec §7).
 CREATE TABLE IF NOT EXISTS online_retail_purchase_history (
     id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id         UUID        NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,

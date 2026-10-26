@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: admin-engine
+  datasource:
+    url:      ${STASH_DB_URL:jdbc:postgresql://localhost:7432/stash}
+    username: ${STASH_DB_USER:stash}
+    password: ${STASH_DB_PASSWORD:pwd}
+
+server:
+  port: 7084
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# Admin credentials. @NotBlank on AdminCredentialsProperties — startup fails if either is blank.
+admin-credentials:
+  username: ${STASH_ADMIN_USERNAME:}
+  password: ${STASH_ADMIN_PASSWORD:}
+
+session:
+  cookie-name: STASH_ADMIN_SESSION
+  ttl:         PT8H
+  same-site:   Lax
+  # v1: plain HTTP on loopback only; Secure is deferred (see backend/api.md §7.5).
+  secure:      false
+  http-only:   true

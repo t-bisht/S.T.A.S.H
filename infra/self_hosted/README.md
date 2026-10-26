@@ -8,7 +8,8 @@ Compose stack for running Stash on the local network.
 self_hosted/
 ├── docker-compose.yml        # root — networks, volumes, includes
 ├── compose/
-│   └── postgres.yml          # Postgres 16 (alpine)
+│   ├── postgres.yml          # Postgres 16 (alpine)
+│   └── admin.yml             # admin_engine (catalog admin console, loopback 7084)
 ├── pg-init/                  # one-shot schema bootstrap (see pg-init/README.md)
 ├── .env.example              # copy to .env, fill in secrets
 └── README.md
@@ -22,6 +23,13 @@ reserved for other apps running on the host).
 | Service       | Host port | Container port |
 |---------------|-----------|----------------|
 | stash-postgres | 7432      | 5432           |
+| stash-user-engine | 7083   | 7083           |
+| stash-admin-engine | 127.0.0.1:7084 | 7084     |
+| web_admin (dev)   | 7002    | — (Vite dev server) |
+
+`stash-admin-engine` binds **loopback only** (`127.0.0.1:7084`) — a deliberate security step,
+not the default (see `compose/admin.yml`). `web_admin` 7002 is the admin UI's Vite dev server
+(the production bundle is served by `stash-admin-engine` itself on 7084).
 
 ## First-time setup
 

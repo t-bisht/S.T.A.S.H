@@ -20,6 +20,7 @@ include:
   - compose/backend.yml
   - compose/ingestion.yml
   - compose/pen.yml
+  - compose/admin.yml
 
 # ── Volumes ──────────────────────────────────────────────────────────────────
 volumes:
