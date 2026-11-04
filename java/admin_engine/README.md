@@ -105,6 +105,15 @@ curl -b /tmp/admin.jar -s \
 curl -b /tmp/admin.jar -s -X PATCH http://127.0.0.1:7084/admin/api/catalog/44 \
   -H "Content-Type: application/json" -d '{"subcategoryId":4}'
 
+# 8a. Delete a subcategory (204; 409 in_use while it holds catalog items or is
+#     still referenced by online_retail_purchase_history; 404 if unknown)
+curl -b /tmp/admin.jar -s -o /dev/null -w "%{http_code}\n" \
+  -X DELETE http://127.0.0.1:7084/admin/api/catalog/subcategories/4
+
+# 8b. Delete a category (204; 409 in_use while it still has subcategories; 404 if unknown)
+curl -b /tmp/admin.jar -s -o /dev/null -w "%{http_code}\n" \
+  -X DELETE http://127.0.0.1:7084/admin/api/catalog/categories/2
+
 # 9. Audit log
 curl -b /tmp/admin.jar -s \
   "http://127.0.0.1:7084/admin/api/audit?limit=20" | jq .

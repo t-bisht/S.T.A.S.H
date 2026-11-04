@@ -3,6 +3,7 @@ package org.tb.stash.admin.catalog.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +31,12 @@ import org.tb.stash.admin.catalog.service.CatalogService;
  * <ul>
  *   <li>{@code GET /categories} — categories holding items.
  *   <li>{@code POST /categories} — add a category.
+ *   <li>{@code DELETE /categories/{categoryId}} — delete a category (blocked while it has
+ *       subcategories).
  *   <li>{@code GET /categories/{categoryId}/subcategories} — its subcategories.
  *   <li>{@code POST /categories/{categoryId}/subcategories} — add a subcategory under it.
+ *   <li>{@code DELETE /subcategories/{subcategoryId}} — delete a subcategory (blocked while it
+ *       holds catalog items).
  *   <li>{@code GET /subcategories/{subcategoryId}/items} — the items.
  *   <li>{@code PATCH /items/{catalogId}} — move an item to another subcategory.
  * </ul>
@@ -66,6 +71,12 @@ public class CatalogController {
         return service.renameCategory(categoryId, body.categoryName());
     }
 
+    @DeleteMapping("/categories/{categoryId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCategory(@PathVariable int categoryId) {
+        service.deleteCategory(categoryId);
+    }
+
     @GetMapping("/categories/{categoryId}/subcategories")
     public List<SubcategoryView> subcategories(@PathVariable int categoryId) {
         return service.subcategories(categoryId);
@@ -82,6 +93,12 @@ public class CatalogController {
     public TaxonomySubcategory renameSubcategory(
             @PathVariable int subcategoryId, @Valid @RequestBody AddSubcategoryRequest body) {
         return service.renameSubcategory(subcategoryId, body.subcategoryName());
+    }
+
+    @DeleteMapping("/subcategories/{subcategoryId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSubcategory(@PathVariable int subcategoryId) {
+        service.deleteSubcategory(subcategoryId);
     }
 
     @GetMapping("/subcategories/{subcategoryId}/items")

@@ -3,6 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   addCatalogCategory,
   addCatalogSubcategory,
+  deleteCatalogCategory,
+  deleteCatalogSubcategory,
   renameCatalogCategory,
   renameCatalogSubcategory,
   updateCatalogItemSubcategory,
@@ -60,6 +62,29 @@ export function useRenameSubcategory(categoryId: number) {
   return useMutation({
     mutationFn: (vars: { subcategoryId: number; name: string }) =>
       renameCatalogSubcategory(vars.subcategoryId, vars.name),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["catalog", "subcategories", categoryId],
+      });
+      qc.invalidateQueries({ queryKey: ["catalog", "taxonomy"] });
+    },
+  });
+}
+
+export function useDeleteCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (categoryId: number) => deleteCatalogCategory(categoryId),
+    // Removing a category changes the category list and the move picker's tree.
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["catalog"] }),
+  });
+}
+
+export function useDeleteSubcategory(categoryId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (subcategoryId: number) =>
+      deleteCatalogSubcategory(subcategoryId),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["catalog", "subcategories", categoryId],

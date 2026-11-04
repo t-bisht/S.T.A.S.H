@@ -1,6 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
-import { ChevronLeft, ChevronRight, Loader2, Pencil, Plus } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -21,6 +28,8 @@ import {
 import {
   useAddCategory,
   useAddSubcategory,
+  useDeleteCategory,
+  useDeleteSubcategory,
   useRenameCategory,
   useRenameSubcategory,
 } from "./useCatalogMutations";
@@ -186,6 +195,7 @@ function RenamableRow({
   count,
   onOpen,
   onRename,
+  onDelete,
 }: {
   label: string;
   count?: number;
@@ -194,11 +204,33 @@ function RenamableRow({
     name: string,
     cb: { onSuccess: () => void; onError: (message: string) => void },
   ) => void;
+  /**
+   * Delete the row. Optional — a row without it shows no trash button. On
+   * success the row vanishes via query invalidation; only the error path
+   * reports back so the row can show why the delete was refused (409).
+   */
+  onDelete?: (cb: { onError: (message: string) => void }) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(label);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  function confirmDelete() {
+    if (!onDelete) return;
+    setDeleteError(null);
+    setDeleting(true);
+    onDelete({
+      onError: (message) => {
+        setDeleting(false);
+        setConfirming(false);
+        setDeleteError(message);
+      },
+    });
+  }
 
   function startEdit() {
     setValue(label);
@@ -271,31 +303,83 @@ function RenamableRow({
   }
 
   return (
-    <div className="flex items-stretch gap-2">
-      <button
-        type="button"
-        onClick={onOpen}
-        className="flex flex-1 items-center justify-between rounded-md border border-surface-200 bg-surface-0 px-4 py-3 text-left text-sm text-surface-900 transition-colors hover:bg-surface-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-      >
-        <span>{label}</span>
-        <span className="flex items-center gap-2 text-surface-500">
-          {count !== undefined && (
-            <span className="rounded-full bg-surface-100 px-2 py-0.5 text-xs">
-              {count}
-            </span>
-          )}
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
-        </span>
-      </button>
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Rename ${label}`}
-        onClick={startEdit}
-        className="px-3"
-      >
-        <Pencil className="h-4 w-4" aria-hidden="true" />
-      </Button>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-stretch gap-2">
+        <button
+          type="button"
+          onClick={onOpen}
+          className="flex flex-1 items-center justify-between rounded-md border border-surface-200 bg-surface-0 px-4 py-3 text-left text-sm text-surface-900 transition-colors hover:bg-surface-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          <span>{label}</span>
+          <span className="flex items-center gap-2 text-surface-500">
+            {count !== undefined && (
+              <span className="rounded-full bg-surface-100 px-2 py-0.5 text-xs">
+                {count}
+              </span>
+            )}
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </span>
+        </button>
+        <Button
+          variant="outline"
+          size="sm"
+          aria-label={`Rename ${label}`}
+          onClick={startEdit}
+          className="px-3"
+        >
+          <Pencil className="h-4 w-4" aria-hidden="true" />
+        </Button>
+        {onDelete && (
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label={`Delete ${label}`}
+            onClick={() => {
+              setDeleteError(null);
+              setConfirming(true);
+            }}
+            disabled={deleting || confirming}
+            className="px-3 text-red-600 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        )}
+      </div>
+
+      {confirming && (
+        <div className="flex items-center justify-between gap-2 rounded-md border border-red-200 bg-red-50 px-4 py-3">
+          <span className="text-sm text-surface-900">
+            Delete &ldquo;{label}&rdquo;?
+          </span>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting && (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              )}
+              Delete
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setConfirming(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {deleteError && (
+        <Alert variant="destructive">
+          <AlertDescription>{deleteError}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
@@ -362,6 +446,7 @@ function CategoryList({
   const { data, isLoading, isError } = useCatalogCategories();
   const addMutation = useAddCategory();
   const renameMutation = useRenameCategory();
+  const deleteMutation = useDeleteCategory();
   const [error, setError] = useState<string | null>(null);
 
   function add(name: string) {
@@ -404,6 +489,12 @@ function CategoryList({
                   },
                 )
               }
+              onDelete={(cb) =>
+                deleteMutation.mutate(c.categoryId, {
+                  onError: (e) =>
+                    cb.onError(errMessage(e, "Could not delete category.")),
+                })
+              }
             />
           ))}
         </div>
@@ -422,6 +513,7 @@ function SubcategoryList({
   const { data, isLoading, isError } = useCatalogSubcategories(categoryId);
   const addMutation = useAddSubcategory(categoryId);
   const renameMutation = useRenameSubcategory(categoryId);
+  const deleteMutation = useDeleteSubcategory(categoryId);
   const [error, setError] = useState<string | null>(null);
 
   function add(name: string) {
@@ -463,6 +555,12 @@ function SubcategoryList({
                       cb.onError(errMessage(e, "Could not rename subcategory.")),
                   },
                 )
+              }
+              onDelete={(cb) =>
+                deleteMutation.mutate(s.subcategoryId, {
+                  onError: (e) =>
+                    cb.onError(errMessage(e, "Could not delete subcategory.")),
+                })
               }
             />
           ))}

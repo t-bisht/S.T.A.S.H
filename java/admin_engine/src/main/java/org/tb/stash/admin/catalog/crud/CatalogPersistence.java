@@ -135,6 +135,36 @@ public class CatalogPersistence {
         return n != null && n > 0;
     }
 
+    public boolean subcategoryExists(int subcategoryId) {
+        Integer n =
+                jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM item_subcategories WHERE subcategory_id = ?",
+                        Integer.class,
+                        subcategoryId);
+        return n != null && n > 0;
+    }
+
+    /** Count of subcategories under a category — the category delete-guard. */
+    public long countSubcategories(int categoryId) {
+        Long n =
+                jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM item_subcategories WHERE category_id = ?",
+                        Long.class,
+                        categoryId);
+        return n == null ? 0L : n;
+    }
+
+    /** Count of catalog items under a subcategory — the subcategory delete-guard. */
+    public long countCatalogItems(int subcategoryId) {
+        Long n =
+                jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM digital_shopping_mart_catalog WHERE sub_category_id"
+                                + " = ?",
+                        Long.class,
+                        subcategoryId);
+        return n == null ? 0L : n;
+    }
+
     public boolean itemExists(int catalogId) {
         Integer n =
                 jdbc.queryForObject(
@@ -229,6 +259,17 @@ public class CatalogPersistence {
                         subcategoryId)
                 .stream()
                 .findFirst();
+    }
+
+    /** Deletes a category, returning the number of rows removed (0 when the id is unknown). */
+    public int deleteCategory(int categoryId) {
+        return jdbc.update("DELETE FROM item_categories WHERE category_id = ?", categoryId);
+    }
+
+    /** Deletes a subcategory, returning the number of rows removed (0 when the id is unknown). */
+    public int deleteSubcategory(int subcategoryId) {
+        return jdbc.update(
+                "DELETE FROM item_subcategories WHERE subcategory_id = ?", subcategoryId);
     }
 
     /**

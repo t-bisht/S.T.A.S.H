@@ -197,3 +197,30 @@ export async function renameCatalogSubcategory(
   if (!res.ok) throw await parseError(res);
   return (await res.json()) as CatalogSubcategory;
 }
+
+/**
+ * DELETE a category. 204 on success; 409 (`in_use`) when it still has
+ * subcategories; 404 when the id is unknown.
+ */
+export async function deleteCatalogCategory(categoryId: number): Promise<void> {
+  const res = await apiFetch(`/admin/api/catalog/categories/${categoryId}`, {
+    method: "DELETE",
+  });
+  if (res.status === 204 || res.ok) return;
+  throw await parseError(res);
+}
+
+/**
+ * DELETE a subcategory. 204 on success; 409 (`in_use`) when it still holds
+ * catalog items (or is referenced by purchase history); 404 when unknown.
+ */
+export async function deleteCatalogSubcategory(
+  subcategoryId: number,
+): Promise<void> {
+  const res = await apiFetch(
+    `/admin/api/catalog/subcategories/${subcategoryId}`,
+    { method: "DELETE" },
+  );
+  if (res.status === 204 || res.ok) return;
+  throw await parseError(res);
+}

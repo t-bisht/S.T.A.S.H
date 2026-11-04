@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.tb.stash.admin.catalog.exception.DuplicateNameException;
+import org.tb.stash.admin.catalog.exception.InUseException;
 import org.tb.stash.admin.catalog.exception.InvalidSubcategoryException;
 import org.tb.stash.admin.catalog.exception.NotFoundException;
 import org.tb.stash.admin.core.domain.ErrorBody;
@@ -58,6 +59,12 @@ public class AdminErrorAdvice {
     public ResponseEntity<ErrorBody> onDuplicateName(DuplicateNameException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorBody("duplicate_name", e.getMessage()));
+    }
+
+    @ExceptionHandler(InUseException.class)
+    public ResponseEntity<ErrorBody> onInUse(InUseException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorBody("in_use", e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
